@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -x
+
+# set up virtualenv and download Python packages
+python3 -m venv '.venv'
+source '.venv/bin/activate'
+pip3 install -r 'requirements.txt'
+
+# download the Iris dataset
+mkdir 'iris'
+wget 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
+wget 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.names'
+mv 'iris.data' 'iris.names' 'iris'
+
+mkdir 'plots'
+
+set +x
