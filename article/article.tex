@@ -6,7 +6,7 @@
 \usepackage{graphicx}
 
 \theoremstyle{definition}
-\newtheorem{example}{Example}[subsection]
+\newtheorem{example}{Example}[section]
 \newtheorem{lemma}{Lemma}[subsection]
 
 \begin{document}
@@ -27,7 +27,7 @@
 	After reading this article, we hope that the reader will be able to better appreciate and understand optimization problems arising in a variety of fields.
 \end{abstract}
 
-\section{Introduction}
+\section{Prerequisites}
 
 \subsection{Notation}
 
@@ -179,6 +179,143 @@ Another scenario is when the $\leq$ in the inequality \eqref{jensen-inequality} 
 A function that satisfies this inequality is known as a \textit{strictly convex} function.
 Among the quadratic, the exponential and the absolute value function, the first two are strictly convex, while the third is an example of a function that is convex but not strictly convex.
 
+\subsection{Matrix Properties}
+
+% TODO: system of equations, under-determined, over-determined
+% TODO: rank of a matrix
+% TODO: positive semi-definiteness and positive definiteness
+
+\section{Introduction}
+
+Let us get started with a brief introduction to optimization!
+
+What is optimization?
+Simply put, optimization is the task of finding the minimum/maximum value of a function that operates over one or more variables.
+
+\begin{example}
+	Consider two dice being rolled simultaneously.
+	Let $x$ be a variable representing the value that appears on the first die, and likewise let $y$ be another variable representing the value that appears on the second die.
+	Since numbers on a die go from 1 through 6, both $x$ and $y$ must belong to the set $\{1, 2, 3, 4, 5, 6\}$.
+	Next, consider the function $f(x, y) = x + y$, i.e. the function $f$ returns the sum of the values appearing on the two dice.
+	What is the minimum/maximum value of this sum?
+	Considering pairs $(x, y)$ of the form $(1, 1), (1, 2), (1, 3), \dots, (6, 6)$, it is quite clear that the minimum value of the function $f$ is 2, attained when $(x, y) = (1, 1)$, and the maximum value is 12, attained when $(x, y) = (6, 6)$.
+\end{example}
+
+This was a problem where the variables were \textit{discrete}-valued, i.e. they assumed integer values: both $x$ and $y$ had to assume a value from the set $\{1, 2, 3, 4, 5, 6\}$.
+The other case is when the variables are \textit{continuous}, i.e. they fall on the real line.
+This corresponds to the more typical scenario in which we have a function, say, a polynomial like the following
+\begin{equation*}
+	f(x) = x (x + 1)^3 (x - 3)^2
+\end{equation*}
+whose minimum/maximum values have to be determined.
+
+How do we handle the continuous case?
+The first step is to examine the domain of the function, i.e. the set of all $x$ over which the function $f$ is defined, and find the values of the function at the \textit{endpoints} of this domain.
+If the function $f$ is defined over a \textit{closed} interval, i.e. for all $x$ such that $a \leq x \leq b$ where $a$ and $b$ are some finite real values, then we need to find $f(a)$ and $f(b)$.
+If $f$ is defined over the whole real line, i.e. $x$ stretches from $-\infty$ to $\infty$, as is the case of the polynomial function above, then we need to find the \textit{limit} of $f$ as $x \rightarrow -\infty$ and $x \rightarrow \infty$.
+It is possible that the minimum/maximum value of the function lies at one (or both) of these endpoints.\footnote{
+	The whole real line does not really have any endpoints.
+	In general, only a closed interval has two endpoints; an open interval does not have any endpoints and a half-open interval has only a single endpoint.
+}
+
+\begin{example}
+	Let us find the maximum value of the polynomial function above.
+	The domain of this function is the whole real line, so we will examine the limit of the function as $x \rightarrow -\infty$ and $x \rightarrow \infty$.
+
+	Essentially, we must observe the behaviour of the three terms that comprise $f(x)$, namely $x$, $(x + 1)^3$ and $(x - 3)^2$, under both the limits $x \rightarrow -\infty$ and $x \rightarrow \infty$.
+	When $x$ tends towards $\infty$, each of these three terms also tends towards $\infty$, so we have $f(x) \rightarrow \infty$.
+	When $x$ tends towards $-\infty$, the first two terms tend towards $-\infty$ while the third term tends towards $\infty$, so two negatives and one positive leads to the result that $f(x) \rightarrow \infty$.
+	Then, clearly, the maximum value of the function $f$ is $\infty$.\footnote{
+		Saying that the ``maximum" value is $\infty$ is an abuse of terminology.
+		It is more appropriate to say that the \textit{supremum} is $\infty$.
+		Likewise, in a case where the ``minimum" value is $-\infty$, it is more appropriate to say that the \textit{infimum} is $-\infty$.
+	}
+\end{example}
+
+However, it is possible that the minimum/maximum value of the function lies in the \textit{interior} of the function's domain.
+In this case, we attempt to look for what are known as \textit{local} minima/maxima (`minima' being the plural of `minimum', and `maxima' being the plural of `maximum').
+A local minimum/maximum is essentially a point which is the minimum/maximum in some neighbourhood or vicinity of itself, as opposed to being the minimum/maximum over the entire domain of the function -- which in this sense is known as the \textit{global} minimum/maximum.
+
+How do we identify these local minima/maxima?
+It turns out that if the function is continuous and differentiable, there is a simple analytical way by which we can identify all the local minima/maxima.
+Essentially, we make the observation that at any local minimum/maximum, the slope of the function becomes flat, i.e. the first derivative of the function vanishes at this point.
+In other words, we find the \textit{roots} of the equation
+\begin{equation*}
+	f'(x) = 0
+\end{equation*}
+where $f'$ denotes the first derivative of the function $f$.
+The roots of this equation are known as \textit{stationary points}: a stationary point is a point at which the first derivative vanishes and the instantaneous rate of change is zero.
+
+However, this has to be taken with a pinch of salt.
+This is because while every local minimum/maximum must be a stationary point, the converse is not true: every stationary point need not be a local minimum/maximum.
+(In fact, a stationary point which is not a local minimum/maximum is known as a \textit{saddle point}.)
+Hence, every root of the said equation may not represent a local minimum/maximum.
+
+Some additional analysis is required to identify the local minima/maxima from among the stationary points.
+There are typically two ways to do this.
+The first way is to check for a change in the sign of the first derivative as we cross the stationary point from left to right: if the sign is $+$ on the left of the stationary point and $-$ on the right, this is a local maximum; if the sign is $-$ on the left and $+$ on the right, this is a local minimum; and if the sign does not change, this is neither a local minimum nor maximum.
+The second way involves using the second derivative $f''$ of the function.
+If the function $f$ is twice-differentiable, then we check the sign of the second derivative $f''$ at the stationary point: if the sign is $-$, then this is a local maximum; if the sign is $+$, then this is a local minimum; and if the second derivative is zero then we remain inconclusive about whether this is a local minimum/maximum or not.
+
+\begin{example}
+	Let us find the minimum of the polynomial
+	\begin{equation*}
+		f(x) = x (x + 1)^3 (x - 3)^2
+	\end{equation*}
+	discussed earlier.
+
+	We have already seen that $f(x) \rightarrow \infty$ both as $x \rightarrow \infty$ and $x \rightarrow -\infty$.
+	Hence the minimum is not achieved at the endpoints of the domain of the function.
+	Then, we need to investigate the existence of local minima.
+	The polynomial is clearly differentiable: using standard differentiation rules, we can find its first derivative
+	\begin{align*}
+		f'(x) & = (x + 1)^3 (x - 3)^2 + 3x (x + 1)^2 (x - 3)^2 + 2x (x + 1)^3 (x - 3) \\
+		& = (x + 1)^2 (x - 3) [ (x + 1) (x - 3) + 3x (x - 3) + 2x (x + 1) ] \\
+		& = (x + 1)^2 (x - 3) [ (x^2 - 2x - 3) + (3x^2 - 9x) + (2x^2 + 2x) ] \\
+		& = (x + 1)^2 (x - 3) [6x^2 - 9x - 3] \\
+		& = 3 (x + 1)^2 (x - 3) (2x^2 - 3x - 1)
+	\end{align*}
+	and set it to zero.
+	\begin{equation*}
+		3 (x + 1)^2 (x - 3) (2x^2 - 3x - 1) = 0
+	\end{equation*}
+	Then, the roots of this equation can be found by setting the individual terms in parentheses to zero.
+	In other words, we have $(x + 1)^2 = 0$ if and only if $x = -1$; we have $(x - 3) = 0$ if and only if $x = 3$, and we have $(2x^2 - 3x - 1) = 0$ if and only if $x = \frac{3 \pm \sqrt{17}}{4}$ (for this last result, recall the handy formula stating that the roots of a quadratic $ax^2 + bx + c = 0$ are given by $\frac{- b \pm \sqrt{b^2 - 4ac}}{2a}$).
+	Then the stationary points of the function $f$ are
+	\begin{equation*}
+		x \in \left\{ -1, \frac{3 - \sqrt{17}}{4}, \frac{3 + \sqrt{17}}{4}, 3 \right\}
+	\end{equation*}
+	Now, in order to identify which among these stationary points are local minima/maxima, we will split up the real line into intervals forming the left and right sides of these stationary points, and examine the sign of $f'$ over these intervals.
+	(The reader can also try out the method involving the second derivative $f''$, and verify that we get the same result.)
+
+	One observation that makes our work simpler is that the term $(x + 1)^2$ in the expression for $f'(x)$ is a square term, so it will be positive for all values of $x \neq -1$.
+	Hence, the sign of $f'(x)$ is only dependent on the sign of two of its terms: $(x - 3)$ and $(2x^2 - 3x - 1)$.
+	Then, consider the tabulation below which lists the interval to which $x$ belongs, along with the corresponding signs of the terms $(x - 3)$ and $(2x^2 - 3x - 1)$, and the resulting sign of the first derivative $f'(x)$.
+	\begin{align*}
+		& x < -1 && \Rightarrow && x - 3 < 0, && 2x^2 - 3x - 1 > 0 && \Rightarrow && f'(x) < 0 \\
+		-1 < & x < \frac{3 - \sqrt{17}}{4} && \Rightarrow && x - 3 < 0, && 2x^2 - 3x - 1 > 0 && \Rightarrow && f'(x) < 0 \\
+		\frac{3 - \sqrt{17}}{4} < & x < \frac{3 + \sqrt{17}}{4} && \Rightarrow && x - 3 < 0, && 2x^2 - 3x - 1 < 0 && \Rightarrow && f'(x) > 0 \\
+		\frac{3 + \sqrt{17}}{4} < & x < 3 && \Rightarrow && x - 3 < 0, && 2x^2 - 3x - 1 > 0 && \Rightarrow && f'(x) < 0 \\
+		& x > 3 && \Rightarrow && x - 3 > 0, && 2x^2 - 3x - 1 > 0 && \Rightarrow && f'(x) > 0
+	\end{align*}
+	(How did we infer the sign of the quadratic term $(2x^2 - 3x - 1)$?
+	Essentially, it turns out that the graph of any quadratic $y = ax^2 + bx + c$ is an \textit{upward} parabola if $a > 0$, i.e. it assumes the form of a U-shape (rather than that of an inverted U-shape).
+	The root on its left side is $\frac{- b - \sqrt{b^2 - 4ac}}{2a}$, while the root on its right side is $\frac{- b + \sqrt{b^2 - 4ac}}{2a}$; to the left of its left root and to the right of its right root, its graph lies above the x-axis, while in between the two roots, its graph goes below the x-axis.\footnote{
+		This is true only if two distinct roots exist, which happens only when $b^2 > 4ac$.
+		If $b^2 < 4ac$, no (real) root exists and the graph of the parabola lies entirely above the x-axis, never intersecting it.
+		If $b^2 = 4ac$, only a single root exists, and the graph of the parabola touches the x-axis at exactly one point.
+	})
+
+	Carefully observe how the first derivative $f'(x)$ changes sign.
+	Clearly, we have local minima at the roots $x = \frac{3 - \sqrt{17}}{4}$ and $x = 3$, and a local maximum at the root $x = \frac{3 + \sqrt{17}}{4}$, while there is no minimum/maximum at the root $x = -1$.
+
+	Finally, in order to find the global minimum of the function $f$, we compare the two local minima that we have identified; the lower one among these will be the global minimum.
+	\begin{equation*}
+		f(3) = 0, \qquad f \left( \frac{3 - \sqrt{17}}{4} \right) = -1.124
+	\end{equation*}
+	Clearly, the global minimum of the polynomial $f$ is $-1.124$, and it occurs at the point $x = \frac{3 - \sqrt{17}}{4}$.
+\end{example}
+
 \section{Theory}
 
 \subsection{Unconstrained Optimization}
@@ -193,12 +330,12 @@ A very basic result in calculus goes as follows: a constrained optimization prob
 		\text{subject to} \quad & g(x) = 0
 	\end{aligned}
 \end{equation}
-is equivalent to the following:
+where $f$ and $g$ are scalar-valued functions, is equivalent to the following:
 \begin{equation}
 	\label{lagrange-unconstrained}
 	\min \quad L(x, \lambda) = f(x) - \lambda g(x)
 \end{equation}
-where the new variable $\lambda$ is called the \textit{Lagrange multiplier}.
+where the new variable $\lambda \in \mathbb{R}$ is called the \textit{Lagrange multiplier}.
 This is an important result, because it shows us how a constrained optimization problem can be converted into an unconstrained problem which can easily be solved.
 
 \begin{example}
@@ -210,6 +347,7 @@ This is an important result, because it shows us how a constrained optimization 
 			\text{subject to} \quad & x + y = 1
 		\end{aligned}
 	\end{equation*}
+	where $x, y \in \mathbb{R}$.
 	Noting that the functions $f$ and $g$ are
 	\begin{align*}
 		f(x, y) & = x^2 + y^2 \\
@@ -257,7 +395,7 @@ At the point where a contour line of $f(x)$ touches the curve $g(x) = 0$, then, 
 \end{example}
 
 Well, that makes sense, but what does this have to do with Lagrange multipliers and the problem \eqref{lagrange-unconstrained}?
-The connection is as follows: from basic high school geometry, we know that the point at which two curves $f(x) = a$ and $g(x) = b$ touch, must satisfy one property -- that their slopes, i.e. their \textit{gradients}, at this point, must be parallel.
+The connection is as follows: from basic high school geometry, we know that the point at which two curves touch, must satisfy one property -- that their slopes must be parallel, i.e. their \textit{gradients} must be multiples of each other.
 In other words,
 \begin{equation*}
 	\nabla f(x) = \lambda \nabla g(x)
@@ -300,6 +438,7 @@ It goes as follows:
 		& h_j(x) = 0, \quad \forall j = 1, 2, \dots, m
 	\end{aligned}
 \end{equation}
+where all the functions $f_0, f_1, f_2, \dots, f_l$ and $h_1, h_2, \dots, h_m$ are scalar-valued.
 Essentially, we now allow multiple inequality constraints and multiple equality constraints.
 
 The form \eqref{constrained-standard} is also called the \textit{standard form} of a constrained optimization problem, because every constrained optimization problem can be expressed in this form.
@@ -358,7 +497,7 @@ For any $x$ to satisfy the constraints, it must lie in the domain of the problem
 		l_i \leq x_i \leq u_i
 	\end{equation*}
 	Now, the key observation is as follows.
-	If $c_i \geq 0$ and we multiply it with each term in this inequality constraint, we have
+	For any $i = 1, 2, \dots, n$, if $c_i \geq 0$ and we multiply it with each term in this inequality constraint, we have
 	\begin{equation*}
 		c_i l_i \leq c_i x_i \leq c_i u_i
 	\end{equation*}
@@ -418,7 +557,7 @@ For any $x$ to satisfy the constraints, it must lie in the domain of the problem
 	Essentially, the original variable of our optimization problem was $x \in \mathbb{R}^n$; we have replaced $x$ by a new variable $y \in \mathbb{R}^n$.
 
 	You may have noticed the result of this transformation: our optimization problem suddenly becomes very straightforward to solve.
-	Our constraint $y \preceq b$ can be written as $y_i \leq b_i$ for all $i = 1, \dots, n$.
+	Our constraint $y \preceq b$ can be written as $y_i \leq b_i$ for all $i = 1, 2, \dots, n$.
 	Our objective function is simply
 	\begin{equation*}
 		\sum_{i=1}^n \tilde{c}_i y_i
@@ -454,17 +593,18 @@ Let us get right to the definition of a convex optimization problem.
 A constrained optimization problem of the form \eqref{constrained-standard} is convex if and only if:
 \begin{itemize}
 	\item the objective $f_0$ is convex,
-	\item the inequality constraint functions $f_i$ where $i = 1, \dots, l$ are all convex,
-	\item and the equality constraint functions $h_j$ where $j = 1, \dots, m$ are all affine.
+	\item the inequality constraint functions $f_i$ where $i = 1, 2, \dots, l$ are all convex,
+	\item and the equality constraint functions $h_j$ where $j = 1, 2, \dots, m$ are all affine.
 \end{itemize}
 
 Why are convex optimization problems important?
-One very useful property that they obey is as follows: any locally optimal point of a convex optimization problem, is also globally optimal.
+The key point is essentially this: they minimize a convex function over a convex set.
+It turns out that the conditions imposed on the inequality and equality constraint functions ensure that the feasible set of the problem is convex, and then, the objective is a convex function which has to be minimized over the convex feasible set.
 The proof of this property is presented in Appendix \ref{proof-global-property}.
 
 % TODO explain what is locally optimal and globally optimal, in the context of unconstrained optimization problems, and state that this will be more relevant when we talk about iterative algorithms for optimization.
 
-Note that this property allows for multiple points to be globally optimal.
+Note that this form of a convex optimization problem allows for multiple points to be globally optimal.
 In other words, there can be multiple solutions that lead to the same globally optimal value of the objective.
 This situation changes when the objective $f_0$ is strictly convex, instead of just being convex.
 In that case, we are guaranteed to have only one, unique, global optimum.
@@ -522,7 +662,7 @@ The Lagrangian associated with a problem of the form \eqref{constrained-standard
 	\label{lagrangian}
 	L(x, \lambda, \nu) = f_0(x) + \sum_{i=1}^{l} \lambda_i f_i(x) + \sum_{j=1}^m \nu_j h_j(x)
 \end{equation}
-Note that $\lambda \in \mathbb{R}^l$ and $\nu \in \mathbb{R}^m$.
+where $\lambda \in \mathbb{R}^l$ and $\nu \in \mathbb{R}^m$.
 
 You can see how this is a generalization of the Lagrange multiplier idea.
 In fact, the parameters $\lambda_i$ and $\nu_j$ are known as the Lagrange multipliers associated with their respective inequality and equality constraints.
@@ -535,7 +675,7 @@ The Lagrange dual function associated with a problem of the form \eqref{constrai
 \end{equation}
 
 At this point we are ready to bring duality into the picture.
-The first key point is this: associated with an optimization problem of the form \eqref{constrained-standard}, we define another optimization problem, known as the \textit{Lagrange dual problem} or simply as the \textit{dual problem}, as the problem that maximizes the Lagrange dual function over all nonnegative values of the $l$ Lagrange multipliers $\lambda_i$.
+Associated with an optimization problem of the form \eqref{constrained-standard}, we define another optimization problem, known as the \textit{Lagrange dual problem} or simply as the \textit{dual problem}, as the problem that maximizes the Lagrange dual function over all nonnegative values of the $l$ Lagrange multipliers $\lambda_i$.
 \begin{equation}
 	\label{dual-problem}
 	\begin{aligned}
@@ -608,7 +748,7 @@ These are the KKT conditions.
 
 The conditions numbered 1 and 2 should be self-explanatory, but numbers 3 and 4 require some explanation.
 Let us start with condition number 3, named \textit{complementary slackness}.
-First, note that the constraints of the primal and dual problems require $f_i(x) \leq 0$ and $\lambda_i \geq 0$ for all $i = 1, \dots, l$, respectively.
+First, note that the constraints of the primal and dual problems require $f_i(x) \leq 0$ and $\lambda_i \geq 0$ for all $i = 1, 2, \dots, l$, respectively.
 Now, the complementary slackness condition requires that the product of the Lagrange multiplier $\lambda_i$ and the corresponding inequality constraint function $f_i(x)$ be zero, for every $i$.
 This essentially means that the Lagrange multiplier and the inequality constraint cannot both be \textit{slack}, i.e. have nonzero values, simultaneously:
 \begin{itemize}
@@ -617,9 +757,9 @@ This essentially means that the Lagrange multiplier and the inequality constrain
 \end{itemize}
 Hence the name `complementary slackness'.
 
-The reason for condition number 4, named \textit{stationarity} is very simple.
+The reason for condition number 4, named \textit{stationarity} is as follows.
 Consider the Lagrangian at the optimal values of $\lambda$ and $\nu$ as produced by the dual problem.
-Then, it turns out that a minimizer of this Lagrangian, over all $x \in \mathcal{D}$, is none other than the optimal value of $x$ as produced by the primal problem.
+It turns out that a minimizer of this Lagrangian, over all $x \in \mathcal{D}$, is none other than the optimal value of $x$ as produced by the primal problem.
 Therefore, the gradient of the Lagrangian with respect to $x$ must be zero at this point.
 
 Appendix \ref{kkt-derivation} contains derivations of how we arrive at the conditions numbered 3 and 4.
@@ -694,15 +834,15 @@ The SVM is a binary classifier, i.e. it separates points into two classes.
 By default, it models a linear separation between the two classes, but it can be easily extended to model a non-linear separation as well.
 In this section, we will discuss how we formulate the linear SVM as a convex optimization problem.
 
-The training set for a binary classification problem essentially consists of a set of $M + N$ data points $x_i \in \mathbb{R}^n$, where (say) the first $M$ points belong to one class, and the remaining $N$ points belong to the other.
-The goal, is to model a hyperplane -- a linear function of $x \in \mathbb{R}^n$ -- to separate the two classes.
+The training set for a binary classification problem essentially consists of a set of $M + N$ data points $x^{(i)} \in \mathbb{R}^n$, where (say) the first $M$ points belong to one class, and the remaining $N$ points belong to the other.
+The goal is to model a hyperplane to separate the two classes.
 
 Let us express this in concrete terms.
 We want a hyperplane $a^T x + b = 0$, such that points belonging to one class lie on one side of the hyperplane, and points belonging to the other class lie on the other side.
 This essentially means that we want to find parameters $a \in \mathbb{R}^n$ and $b \in \mathbb{R}$ such that
 \begin{align*}
-	a^T x_i + b > 0 \quad & \forall i = 1, 2, \dots, M, \\
-	a^T x_i + b < 0 \quad & \forall i = M{+}1, M{+}2, \dots, M{+}N
+	a^T x^{(i)} + b > 0 \quad & \forall i = 1, 2, \dots, M, \\
+	a^T x^{(i)} + b < 0 \quad & \forall i = M{+}1, M{+}2, \dots, M{+}N
 \end{align*}
 
 Now, this can be formulated as an optimization problem, where $a$ and $b$ are the variables we wish to optimize over, and the above inequalities are the constraints.
@@ -712,8 +852,8 @@ At this point, there doesn't seem to be anything we would like to optimize over:
 Then, let us formulate this as an optimization problem with a trivial objective, i.e. we will minimize $C$ where $C$ is some constant.
 \begin{align*}
 	\min \quad & C \\
-	\text{subject to} \quad & a^T x_i + b < 0 \quad \forall i = 1, 2, \dots, M, \\
-	& a^T x_i + b > 0 \quad \forall i = M{+}1, M{+}2, \dots, M{+}N
+	\text{subject to} \quad & a^T x^{(i)} + b < 0 \quad \forall i = 1, 2, \dots, M, \\
+	& a^T x^{(i)} + b > 0 \quad \forall i = M{+}1, M{+}2, \dots, M{+}N
 \end{align*}
 This problem may look odd, but it is meaningful.
 Since the minimum of a constant is just the constant itself (for e.g. what is the minimum of 1?), this problem will simply ignore the objective function, and return any $a, b$ that satisfies the constraints.
@@ -726,8 +866,8 @@ Observe that the inequality constraints are strict, i.e. they do not allow for e
 Then, let us relax these strict inequality constraints to obtain the following problem:
 \begin{align*}
 	\min \quad & C \\
-	\text{subject to} \quad & a^T x_i + b \leq 0 \quad \forall i = 1, 2, \dots, M, \\
-	& a^T x_i + b \geq 0 \quad \forall i = M{+}1, M{+}2, \dots, M{+}N
+	\text{subject to} \quad & a^T x^{(i)} + b \leq 0 \quad \forall i = 1, 2, \dots, M, \\
+	& a^T x^{(i)} + b \geq 0 \quad \forall i = M{+}1, M{+}2, \dots, M{+}N
 \end{align*}
 This problem seems alright, but it has an issue that is not so obvious.
 That issue is this: realize that the trivial solution
@@ -750,8 +890,8 @@ Note how the $a$ remains the same in both equations, since the hyperplanes must 
 Then, the points belonging to one class will lie on one side of one of the hyperplanes, and the points belonging to the other class will lie on the other side of the other hyperplane.
 With this, realize that the constraints become
 \begin{align*}
-	a^T x_i + b & \geq 1 && \forall i = 1, 2, \dots, M, \\
-	a^T x_i + b & \leq -1 && \forall i = M{+}1, M{+}2, \dots, M{+}N
+	a^T x^{(i)} + b & \geq 1 && \forall i = 1, 2, \dots, M, \\
+	a^T x^{(i)} + b & \leq -1 && \forall i = M{+}1, M{+}2, \dots, M{+}N
 \end{align*}
 Note how these constraints will not allow the trivial solution, so that issue is resolved.
 
@@ -776,12 +916,12 @@ Then, finally, the optimization problem takes the following form:
 	\label{hard-linear-svm}
 	\begin{aligned}
 		\min \quad & \| a \|_2 \\
-		\text{subject to} \quad & a^T x_i + b \geq 1 && \forall i = 1, 2, \dots, M, \\
-		& a^T x_i + b \leq -1 && \forall i = M{+}1, M{+}2, \dots, M{+}N
+		\text{subject to} \quad & a^T x^{(i)} + b \geq 1 && \forall i = 1, 2, \dots, M, \\
+		& a^T x^{(i)} + b \leq -1 && \forall i = M{+}1, M{+}2, \dots, M{+}N
 	\end{aligned}
 \end{equation}
 This is the optimization problem that the linear SVM solves.
-Note that $a \in \mathbb{R}^n$ and $b \in \mathbb{R}$ are the variables under optimization, and $x_i \in \mathbb{R}^n$ for all $i = 1, \dots, M{+}N$ are the data of the problem.
+Note that $a \in \mathbb{R}^n$ and $b \in \mathbb{R}$ are the variables under optimization, and $x^{(i)} \in \mathbb{R}^n$ for all $i = 1, 2, \dots, M{+}N$ are the data of the problem.
 
 This optimization problem is clearly convex.
 The objective function, a Euclidean norm, is convex (Lemma \ref{norm-convex}).
@@ -795,15 +935,15 @@ Hence, we have to modify our optimization problem to be able to tolerate some am
 
 How do we do this?
 By introducing what are known as \textit{slack variables}.
-For each data point $x_i$, we will introduce a slack variable $u_i$, which will tolerate some amount of classification error for this point.
+For each data point $x^{(i)}$, we will introduce a slack variable $u_i$, which will tolerate some amount of classification error for this point.
 These slack variables will be incorporated into our constraints as follows:
 \begin{align*}
-	a^T x_i + b & \geq 1 - u_i && \forall i = 1, 2, \dots, M, \\
-	a^T x_i + b & \leq -1 + u_i && \forall i = M{+}1, M{+}2, \dots, M{+}N \\
+	a^T x^{(i)} + b & \geq 1 - u_i && \forall i = 1, 2, \dots, M, \\
+	a^T x^{(i)} + b & \leq -1 + u_i && \forall i = M{+}1, M{+}2, \dots, M{+}N \\
 	u_i & \geq 0 && \forall i = 1, 2, \dots, M{+}N
 \end{align*}
 You can see what is happening here.
-Earlier, without these slack variables, we required data points $x_i$ to fall on one side of the slab or the other.
+Earlier, without these slack variables, we required data points $x^{(i)}$ to fall on one side of the slab or the other.
 Now, these slack variables essentially loosen this requirement, by altering the right-hand sides of the inequalities so that some deviation from the numbers $1$ and $-1$ is allowed.
 Also note how the slack variables are constrained to be nonnegative, because if they are not, then instead of loosening the separation between the two classes, they serve only to make it more strict.
 
@@ -818,13 +958,13 @@ So, our optimization problem now takes the following form:
 	\label{soft-linear-svm}
 	\begin{aligned}
 		\min \quad & \| a \|_2 + \eta (1^T u) && \\
-		\text{subject to} \quad & a^T x_i + b \geq 1 - u_i && \forall i = 1, 2, \dots, M, \\
-		& a^T x_i + b \leq -1 + u_i && \forall i = M{+}1, M{+}2, \dots, M{+}N \\
+		\text{subject to} \quad & a^T x^{(i)} + b \geq 1 - u_i && \forall i = 1, 2, \dots, M, \\
+		& a^T x^{(i)} + b \leq -1 + u_i && \forall i = M{+}1, M{+}2, \dots, M{+}N \\
 		& u_i \geq 0 && \forall i = 1, 2, \dots, M{+}N
 	\end{aligned}
 \end{equation}
 This formulation \eqref{soft-linear-svm} is known as the \textit{soft-margin} SVM, because it allows for ``soft" classification, while on the other hand the previous formulation \eqref{hard-linear-svm} is known as the \textit{hard-margin} SVM.
-Here, $a \in \mathbb{R}^m$, $b \in \mathbb{R}$ and $u \in \mathbb{R}^{M{+}N}$ are the variables under optimization, and $x_i \in \mathbb{R}^n$ for all $i = 1, \dots, M{+}N$ along with the parameter $\eta$ are the data of the problem.
+Here, $a \in \mathbb{R}^m$, $b \in \mathbb{R}$ and $u \in \mathbb{R}^{M{+}N}$ are the variables under optimization, and $x^{(i)} \in \mathbb{R}^n$ for all $i = 1, 2, \dots, M{+}N$ along with the parameter $\eta$ are the data of the problem.
 Note also that the problem still remains convex: the objective is convex in $a$ and affine in $u$, and the constraints are affine in $a$, $b$ and $u$.
 
 \subsection{Diet Problem}
@@ -1371,7 +1511,7 @@ Given any nonnegative $\lambda$, and any $\nu$, the Lagrange dual function is a 
 		g(\lambda, \nu) \leq p^*
 	\end{equation*}
 \end{lemma}
-(Note the component-wise inequality notation, i.e. $\lambda \succeq 0$ implies $\lambda_i \geq 0$ for all $i = 1, \dots, l$.)
+(Note the component-wise inequality notation, i.e. $\lambda \succeq 0$ implies $\lambda_i \geq 0$ for all $i = 1, 2, \dots, l$.)
 
 \begin{proof}
 	Consider any point $\tilde{x}$ which is feasible in the given optimization problem.
